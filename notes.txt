@@ -1,0 +1,6 @@
+line notes
+
+lineWidth = 3;
+lineCap = "round";
+lineJoin = "miter";
+miterLimit = 10;

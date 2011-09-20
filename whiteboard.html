@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'/>
+<link href='http://fonts.googleapis.com/css?family=Permanent+Marker' rel='stylesheet' type='text/css'/>
+<link href='http://fonts.googleapis.com/css?family=Slackey' rel='stylesheet' type='text/css'/>
+<link type="text/css" href="js/jquery-ui-1.8.11.custom.css" rel="stylesheet" />	
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.11.custom.min.js"></script>
+<style type="text/css">
+
+body{
+	margin: 0px 0px 0px 0px; 
+	padding: 0px 0px 0px 0px;	
+	background: white;
+	font-size:100%;
+}
+
+</style> 
+
+    <script type="text/javascript" src="js/Input.js"></script>
+
+    <!-- [if IE]><script type="text/javascript" src="js/excanvas.js"></script><![endif] -->
+    <script type="text/javascript" src="js/GetSat.js"></script>
+
+
+<script type="text/javascript" >
+<!--
+var isIE = (window.navigator.userAgent.indexOf("MSIE") >= 0);
+var mainCanvas = null;
+var ctx = null;
+var cloud = null;
+var viewport = null;
+var lastMouseX = 0, lastMouseY = 0;
+var penColor = "blue";
+
+function onLoad() {
+  mainCanvas = document.getElementById('canvas');
+  if(mainCanvas.getContext)
+  {
+    ctx = mainCanvas.getContext('2d');
+    mainCanvas.onresize = function() {
+        // Not sure yet
+    };
+    setupInputHandlers();
+
+    ctx.globalCompositeOperation = "source-over";
+
+    ctx.fillStyle = penColor;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.shadowColor = "black";
+  }
+}
+  
+
+function clearCanvas()
+{
+    ctx.clearRect(0, 0, 900, 700);
+}
+
+function setCursor(canvas, name) {
+    switch (name) {
+        case null:
+        case "":
+        case "default":
+        case "arrow":
+            canvas.style.cursor = "";
+            break;
+        case "hand":
+            canvas.style.cursor = "pointer";
+            break;
+    }
+}
+
+function setupInputHandlers() {
+    var leftMouseDown = false;
+    var mouseDelta = 0;
+    var ctrlDown = false;
+    var shiftDown = false;
+
+    var selectedElement = null;
+
+    var handlers = {};
+
+    handlers.onMouseDown = function (button, x, y, el) {
+        leftMouseDown = true;
+        setCursor(mainCanvas, "hand");
+        lastMouseX = x;
+        lastMouseY = y;
+
+        ctx.fillStyle = penColor;
+        ctx.strokeStyle = penColor;
+        ctx.moveTo(x,y);
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI*2, true);
+        ctx.fill();
+    }
+
+    handlers.onMouseUp = function (button, x, y, el) {
+        leftMouseDown = false;
+        setCursor(mainCanvas, null);
+    }
+
+    handlers.onMouseMove = function (x, y) {
+        if (leftMouseDown == true) {
+            ctx.fillStyle = penColor;
+            ctx.strokeStyle = penColor;
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "miter";
+            ctx.miterLimit = 10;
+
+            ctx.beginPath();
+            ctx.moveTo(lastMouseX,lastMouseY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        
+            lastMouseX = x;
+            lastMouseY = y;
+        }
+    }
+
+    handlers.onMouseWheel = function (delta, x, y, el) {
+
+    }
+
+    handlers.onTouchStart = function (button, x, y, el) {
+        leftMouseDown = true;
+        setCursor(mainCanvas, "hand");
+        lastMouseX = x;
+        lastMouseY = y;
+
+        ctx.fillStyle = penColor;
+        ctx.strokeStyle = penColor;
+        ctx.moveTo(x,y);
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI*2, true);
+        ctx.fill();
+    }
+
+    handlers.onTouchEnd = function (button, x, y, el) {
+        leftMouseDown = false;
+        setCursor(mainCanvas, null);
+    }
+
+    handlers.onTouchMove = function (x, y) {
+        if (leftMouseDown == true) {
+            ctx.fillStyle = penColor;
+            ctx.strokeStyle = penColor;
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "miter";
+            ctx.miterLimit = 10;
+
+            ctx.beginPath();
+            ctx.moveTo(lastMouseX,lastMouseY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        
+            lastMouseX = x;
+            lastMouseY = y;
+        }
+    }
+
+
+    handlers.onGestureStart = function (button, x, y, el) {
+        setCursor(mainCanvas, "hand");
+        lastMouseX = x;
+        lastMouseY = y;
+    }
+
+    handlers.onGestureEnd = function (button, x, y, el) {
+        setCursor(mainCanvas, null);
+
+        if (mouseDelta < 4) {
+        }
+        mouseDelta = 0;
+    }
+
+    handlers.onGestureChange = function (delta, x, y, el) {
+
+    }
+
+
+    handlers.onKeyDown = function (keyCode) {
+         switch (keyCode) {
+            case 16: // shift
+                shiftDown = true;
+                return true;
+            case 17: // ctrl
+                ctrlDown = true;
+                return true;
+            case 32:
+                return true;
+        }
+        return false;
+    }
+
+    handlers.onKeyUp = function (keyCode) {
+        switch (keyCode) {
+            case 16: // shift
+               shiftDown = false;
+               return true;
+            case 17: // ctrl
+                ctrlDown = false;
+                return true;
+            case 32: // space
+                viewport.zoomToFit(3.0);
+                return true;
+        }
+        return false;
+    }
+
+    setupInput(mainCanvas, handlers);
+}
+
+//-->
+   </script>
+
+<title>The Collabotron Whiteboard</title>
+</head>
+
+<body onload="onLoad();">	
+    <div id = "content"> 
+        <canvas id="canvas" width="1000px" height="600px"></canvas>
+    </div>
+    <input name="black" type="button"  onClick="penColor = 'black';"  value="Black"  style="background-color:Black" >
+    <input name="blue" type="button"   onClick="penColor = 'blue';"   value="Blue"   style="background-color:Blue" > 
+    <input name="green" type="button"  onClick="penColor = 'green';"  value="Green"  style="background-color:Green" > <br/>
+    <input name="red" type="button"    onClick="penColor = 'red';"    value="Red"    style="background-color:Red" > 
+    <input name="orange" type="button" onClick="penColor = 'orange';" value="Orange" style="background-color:Orange" >
+    <input name="purple" type="button" onClick="penColor = 'purple';" value="Purple" style="background-color:Purple" > <br/>
+    <input name="clear" type="button" onClick="clearCanvas();" value="Clear the Canvas"> <br/>
+</body>
+
+ </html>
